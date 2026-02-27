@@ -12,7 +12,7 @@ class LoiUniverselleApp:
         self.primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31]
         
         # Langue par défaut
-        self.lang = "en"  # "en" ou "fr"
+        self.lang = "fr"  # "en" ou "fr"
         
         # Textes multilingues
         self.texts = {
@@ -39,7 +39,7 @@ class LoiUniverselleApp:
                 "structure": "Structure",
                 "state": "Status",
                 "admissible": "✓ ADMISSIBLE CONSTELLATION",
-                "constrained": "⚠️ PARTIALLY CONSTRAINED CONSTELLATION",
+                "constrained": "⚠️ CONSTRAINED CONSTELLATION",
                 "formula_title": "1. EXACT FORMULA",
                 "count_title": "2. RESIDUE COUNT (EXACT DENSITY)",
                 "euler_model": "Euler φ(n) Model [Regular, k=1]",
@@ -65,7 +65,7 @@ class LoiUniverselleApp:
                 "conclusion_title": "6. CONCLUSION",
                 "conclusion_text": "The (p-{}) law is an EXACT multiplicative combinatorial law.\nThe distribution is not random but deterministic.",
                 "comparison_title": "7. CONSTELLATION COMPARISON (Level P_{})",
-                "comparison_header": "Type                          k    Residues           Ratio      Speedup",
+                "comparison_header": "Type                          k    Residues            Ratio      Speedup",
                 "comparison_obs": "Observations:",
                 "comparison_obs1": "• Higher k values reduce search space more",
                 "comparison_obs2": "• Speedup grows exponentially with k",
@@ -118,7 +118,7 @@ class LoiUniverselleApp:
                 "structure": "Structure",
                 "state": "État",
                 "admissible": "✓ CONSTELLATION ADMISSIBLE",
-                "constrained": "⚠️ CONSTELLATION PARTIELLEMENT CONTRAINTE",
+                "constrained": "⚠️ CONSTELLATION CONTRAINTE",
                 "formula_title": "1. FORMULE EXACTE",
                 "count_title": "2. DÉNOMBREMENT DES RÉSIDUS (DENSITÉ EXACTE)",
                 "euler_model": "Modèle Euler φ(n) [Ordinaires, k=1]",
@@ -144,7 +144,7 @@ class LoiUniverselleApp:
                 "conclusion_title": "6. CONCLUSION",
                 "conclusion_text": "La loi (p-{}) est une loi combinatoire multiplicative EXACTE.\nLa distribution n'est pas aléatoire mais déterministe.",
                 "comparison_title": "7. COMPARAISON ENTRE CONSTELLATIONS (Niveau P_{})",
-                "comparison_header": "Type                          k    Résidus           Ratio      Speedup",
+                "comparison_header": "Type                          k    Résidus            Ratio      Speedup",
                 "comparison_obs": "Observations :",
                 "comparison_obs1": "• Plus k augmente, plus l'espace de recherche se réduit",
                 "comparison_obs2": "• Le speedup croît exponentiellement avec k",
@@ -179,16 +179,13 @@ class LoiUniverselleApp:
         self.setup_ui()
 
     def t(self, key):
-        """Retourne le texte traduit."""
         return self.texts[self.lang].get(key, key)
 
     def switch_language(self):
-        """Bascule entre anglais et français."""
         self.lang = "fr" if self.lang == "en" else "en"
         self.refresh_ui()
 
     def refresh_ui(self):
-        """Rafraîchit l'interface avec la nouvelle langue."""
         self.root.title("G3 Lab - " + self.t("title"))
         self.config_frame.config(text=self.t("config_title"))
         self.const_label.config(text=self.t("constellation_type"))
@@ -197,25 +194,16 @@ class LoiUniverselleApp:
         self.res_frame.config(text=self.t("synthesis_title"))
         self.copy_btn.config(text=self.t("copy_btn"))
         self.lang_btn.config(text=self.t("lang_switch"))
-        
-        # Mise à jour des valeurs du combobox
-        self.k_selector.config(values=[
-            self.t("k1"), self.t("k2"), self.t("k3"), self.t("k4"), self.t("k5")
-        ])
-        
+        self.k_selector.config(values=[self.t("k1"), self.t("k2"), self.t("k3"), self.t("k4"), self.t("k5")])
         self.update_label()
 
     def setup_ui(self):
-        # Configuration des styles
         style = ttk.Style()
         style.configure("Header.TLabel", font=("Helvetica", 12, "bold"))
-        style.configure("TButton", font=("Helvetica", 10))
         
-        # Bouton de changement de langue en haut à droite
         self.lang_btn = ttk.Button(self.root, text=self.t("lang_switch"), command=self.switch_language, width=10)
         self.lang_btn.pack(anchor="ne", padx=20, pady=5)
         
-        # --- PANNEAU DE CONFIGURATION ---
         self.config_frame = ttk.LabelFrame(self.root, text=self.t("config_title"), padding="15")
         self.config_frame.pack(fill="x", padx=20, pady=10)
 
@@ -231,18 +219,17 @@ class LoiUniverselleApp:
         self.level_lbl = ttk.Label(self.config_frame, text=self.t("primorial_level"))
         self.level_lbl.grid(row=1, column=0, sticky="w")
         
-        self.p_level = ttk.Scale(self.config_frame, from_=5, to=10, orient="horizontal", command=self.update_label)
-        self.p_level.set(10)
-        self.p_level.grid(row=1, column=1, padx=10, pady=5, sticky="ew")
-        
+        # Création du label d'affichage AVANT l'appel à update_label par le Scale
         self.level_label = ttk.Label(self.config_frame, text="", font=("Consolas", 10, "bold"))
         self.level_label.grid(row=1, column=2, padx=5)
 
-        # --- BOUTON DE CALCUL ---
+        self.p_level = ttk.Scale(self.config_frame, from_=5, to=10, orient="horizontal", command=self.update_label)
+        self.p_level.set(10)
+        self.p_level.grid(row=1, column=1, padx=10, pady=5, sticky="ew")
+
         self.calc_btn = ttk.Button(self.root, text=self.t("generate_btn"), command=self.calculer_loi)
         self.calc_btn.pack(pady=10)
 
-        # --- ZONE DE RÉSULTATS ---
         self.res_frame = ttk.LabelFrame(self.root, text=self.t("synthesis_title"), padding="15")
         self.res_frame.pack(fill="both", expand=True, padx=20, pady=10)
 
@@ -259,35 +246,19 @@ class LoiUniverselleApp:
         self.update_label()
 
     def update_label(self, event=None):
-        """Mise à jour du label avec correction d'erreur d'index."""
-        try:
-            idx = int(float(self.p_level.get()))
-            # CORRECTION: Vérifier que idx est dans les limites
-            if idx < 1 or idx > len(self.primes):
-                idx = min(max(idx, 1), len(self.primes))
-            
-            primorial = 1
-            for i in range(idx):
-                primorial *= self.primes[i]
-            
+        idx = int(float(self.p_level.get()))
+        primorial = 1
+        for i in range(idx): primorial *= self.primes[i]
+        # Vérification de sécurité pour éviter l'erreur d'init
+        if hasattr(self, 'level_label'):
             self.level_label.config(text=f"{self.t('modulo_current')} {primorial:,} ({self.primes[idx-1]}#)")
-        except (ValueError, IndexError) as e:
-            # En cas d'erreur, afficher un message par défaut
-            self.level_label.config(text=f"{self.t('modulo_current')} ---")
 
     def calculer_residus_pour_k(self, level, k):
-        """Calcule les résidus pour un k donné et un niveau donné."""
         res = 1
         start_idx = 0 if k == 1 else 1
-        
         for i in range(start_idx, level):
             p = self.primes[i]
-            if p <= k:
-                factor = max(0, p - k)
-            else:
-                factor = (p - k)
-            res *= factor
-        
+            res *= max(0, p - k)
         return res
 
     def calculer_loi(self):
@@ -298,81 +269,19 @@ class LoiUniverselleApp:
         res_euler = 1
         primorial = 1
         for i in range(level):
-            p = self.primes[i]
-            primorial *= p
-            res_euler *= (p - 1)
+            primorial *= self.primes[i]
+            res_euler *= (self.primes[i] - 1)
             
-        res_monfette = 1
-        possible = True
-        warning_primes = []
-        
-        start_idx = 0 if k == 1 else 1
-        
-        for i in range(start_idx, level):
-            p = self.primes[i]
-            if p <= k:
-                factor = max(0, p - k)
-                possible = False
-                warning_primes.append(p)
-            else:
-                factor = (p - k)
-            res_monfette *= factor
-
-        if k == 1:
-            res_monfette = res_euler
-
+        res_monfette = self.calculer_residus_pour_k(level, k)
         reduction = (1 - (res_monfette / res_euler)) * 100 if res_euler > 0 else 0
         speedup_val = res_euler / res_monfette if res_monfette > 0 else float('inf')
         speedup_str = f"×{speedup_val:,.2f}" if speedup_val != float('inf') else "×∞"
 
-        comparatif_data = []
-        constellation_names = {
-            1: self.t("k1").split("->")[0].strip(),
-            2: self.t("k2").split("->")[0].strip(),
-            3: self.t("k3").split("->")[0].strip(),
-            4: self.t("k4").split("->")[0].strip(),
-            5: self.t("k5").split("->")[0].strip()
-        }
-        
-        for k_comp in range(1, 6):
-            res_k = self.calculer_residus_pour_k(level, k_comp)
-            ratio_k = (res_k / res_euler * 100) if res_euler > 0 else 0
-            speedup_k = res_euler / res_k if res_k > 0 else float('inf')
-            
-            comparatif_data.append({
-                'k': k_comp,
-                'nom': constellation_names[k_comp],
-                'residus': res_k,
-                'ratio': ratio_k,
-                'speedup': speedup_k
-            })
-
-        convergence_data = []
-        for lvl in range(5, level + 1):
-            res_lvl = self.calculer_residus_pour_k(lvl, k)
-            euler_lvl = 1
-            for i in range(lvl):
-                euler_lvl *= (self.primes[i] - 1)
-            ratio_lvl = (res_lvl / euler_lvl * 100) if euler_lvl > 0 else 0
-            
-            convergence_data.append({
-                'level': lvl,
-                'prime': self.primes[lvl-1],
-                'ratio': ratio_lvl
-            })
-
         self.result_text.delete("1.0", tk.END)
-        
-        status_msg = self.t("admissible") if possible else self.t("constrained")
-        
-        formula_parts = []
-        for i in range(start_idx, level):
-            p = self.primes[i]
-            formula_parts.append(f"({p}-{k})")
-        formula_str = " × ".join(formula_parts) if formula_parts else "1"
+        status_msg = self.t("admissible") if res_monfette > 0 else self.t("constrained")
         
         report = f"""╔════════════════════════════════════════════════════════════════════╗
-║  {self.t('title').upper().center(66)}  ║
+║  {self.t('title').upper().center(66)}║
 ╚════════════════════════════════════════════════════════════════════╝
 
 {self.t('author')}       : Michel Monfette
@@ -383,8 +292,7 @@ class LoiUniverselleApp:
 ────────────────────────────────────────────────────────────────────
 
 {self.t('formula_title')}
-   Res(P_{level}) = {formula_str}
-                = {res_monfette:,}
+   Res(P_{level}) = {res_monfette:,} (Exact)
 
 {self.t('count_title')}
    • {self.t('euler_model')}  : {res_euler:,} {self.t('residues')}
@@ -401,85 +309,32 @@ class LoiUniverselleApp:
 {self.t('crypto_title')}
    {self.t('crypto_text')}
    
-   • {self.t('predictability')} : {res_monfette:,} {self.t('positions')} {self.t('on')} {primorial:,} {self.t('possible')}
+   • {self.t('predictability')} : {res_monfette:,} {self.t('positions')} sur {primorial:,}
    • {self.t('effective_security')} : {self.t('compromised') if res_monfette == 0 else self.t('reducible')}
-   • {self.t('recommendation')} : {self.t('avoid') if res_monfette < 100 else self.t('viable')}
-
-{self.t('validation_title')}
-   • {self.t('theoretical_error')}
-   • {self.t('empirical_validation')}
-   • {self.t('references')}
-
-{self.t('conclusion_title')}
-   {self.t('conclusion_text').format(k)}
 
 ────────────────────────────────────────────────────────────────────
 
 {self.t('comparison_title').format(level)}
-   
    {self.t('comparison_header')}
-   ───────────────────────────────────────────────────────────────────────
-"""
+   ───────────────────────────────────────────────────────────────────────\n"""
         
-        for data in comparatif_data:
-            marker = f" ◄ {self.t('selected')}" if data['k'] == k else ""
-            speedup_str_comp = f"×{data['speedup']:.1f}" if data['speedup'] != float('inf') else "×∞"
-            report += f"   {data['nom']:<29} {data['k']}    {data['residus']:>15,}   {data['ratio']:>6.2f}%   {speedup_str_comp:>8}{marker}\n"
+        for k_comp in range(1, 6):
+            res_k = self.calculer_residus_pour_k(level, k_comp)
+            rat = (res_k/res_euler*100) if res_euler > 0 else 0
+            sp = res_euler/res_k if res_k > 0 else float('inf')
+            mark = f" ◄ {self.t('selected')}" if k_comp == k else ""
+            report += f"   k={k_comp:<26} {res_k:>15,}  {rat:>7.2f}%   {f'x{sp:.1f}' if sp!=float('inf') else 'x∞':>8}{mark}\n"
         
-        report += f"""
-   {self.t('comparison_obs')}
-   {self.t('comparison_obs1')}
-   {self.t('comparison_obs2')}
-   {self.t('comparison_obs3')}
+        report += f"\n{self.t('convergence_title').format(k)}\n"
+        for lvl in range(5, level + 1):
+            rk = self.calculer_residus_pour_k(lvl, k)
+            re = 1
+            for j in range(lvl): re *= (self.primes[j]-1)
+            ratio_lvl = (rk/re*100)
+            bar = "█" * int(ratio_lvl * 0.4)
+            report += f"   P{lvl:<2} ({self.primes[lvl-1]:>2}#) {bar:<40} {ratio_lvl:>5.2f}%\n"
 
-────────────────────────────────────────────────────────────────────
-
-{self.t('convergence_title').format(k)}
-   
-"""
-        
-        for data in convergence_data:
-            bar_length = int(data['ratio'] * 40 / 100)
-            bar = "█" * bar_length
-            marker = " ◄" if data['level'] == level else ""
-            report += f"   P{data['level']:<2} ({data['prime']:>2}#) {bar:<40} {data['ratio']:>5.2f}%{marker}\n"
-        
-        if len(convergence_data) >= 2:
-            ratio_start = convergence_data[0]['ratio']
-            ratio_end = convergence_data[-1]['ratio']
-            variation = ratio_end - ratio_start
-            
-            if variation < 0:
-                tendance = f"↘ {self.t('decrease')} {abs(variation):.2f}% ({self.t('convergence')})"
-            else:
-                tendance = f"↗ {self.t('increase')} {variation:.2f}%"
-        else:
-            tendance = self.t('insufficient_data')
-        
-        report += f"""
-   {self.t('trend')} : {tendance}
-   
-   {self.t('convergence_interp')}
-   {self.t('convergence_obs1')}
-   {self.t('convergence_obs2')}
-   {self.t('convergence_obs3')}
-
-────────────────────────────────────────────────────────────────────
-
-{self.t('asymptotic_title')}
-   
-   {self.t('asymptotic_text')}
-   
-   {self.t('asymptotic_formula')}
-   
-   {self.t('current_measure').format(level, k, res_monfette/res_euler*100)}
-   → {self.t('near_convergence') if level >= 8 else self.t('partial_convergence')}
-
-────────────────────────────────────────────────────────────────────
-{self.t('footer')}
-{self.t('copyright')}
-"""
-        
+        report += f"\n{self.t('footer')}\n{self.t('copyright')}"
         self.result_text.insert(tk.END, report)
 
     def copy_report(self):
@@ -488,8 +343,6 @@ class LoiUniverselleApp:
             self.root.clipboard_clear()
             self.root.clipboard_append(content)
             messagebox.showinfo(self.t("success"), self.t("copy_success"))
-        else:
-            messagebox.showwarning(self.t("warning"), self.t("generate_first"))
 
 if __name__ == "__main__":
     root = tk.Tk()
